@@ -1,0 +1,549 @@
+{
+  "info": {
+    "name": "Realtime CRUD Tourism API",
+    "description": "API para sistema de turismo con CRUD en tiempo real",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Lugar Turístico",
+      "item": [
+        {
+          "name": "Crear Lugar Turístico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Machu Picchu\",\n  \"descripcion\": \"Ciudadela inca ubicada en los Andes peruanos, considerada una de las maravillas del mundo moderno\",\n  \"ubicacion\": \"Cusco, Perú\",\n  \"latitud\": -13.163141,\n  \"longitud\": -72.544963,\n  \"categoria\": \"arqueológico\",\n  \"precioPromedio\": 152.00,\n  \"imagenUrl\": \"https://example.com/machu-picchu.jpg\",\n  \"horarios\": \"6:00 AM - 5:30 PM\",\n  \"contacto\": \"info@machupicchu.gob.pe\",\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lugarturistico",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Todos los Lugares",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Lugar por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/1",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "1"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por Categoría",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/categoria/arqueológico",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "categoria", "arqueológico"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por Ubicación",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/ubicacion?latitud=-13.163141&longitud=-72.544963&radio=50",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "ubicacion"],
+              "query": [
+                {
+                  "key": "latitud",
+                  "value": "-13.163141"
+                },
+                {
+                  "key": "longitud",
+                  "value": "-72.544963"
+                },
+                {
+                  "key": "radio",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Promedio Calificación",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/1/promedio-calificacion",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "1", "promedio-calificacion"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Lugar Turístico",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nombre\": \"Machu Picchu - Actualizado\",\n  \"descripcion\": \"Ciudadela inca actualizada con nueva información\",\n  \"precioPromedio\": 160.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/1",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Lugar Turístico",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/lugarturistico/1",
+              "host": ["{{base_url}}"],
+              "path": ["lugarturistico", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Temporada",
+      "item": [
+        {
+          "name": "Crear Temporada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Temporada Alta Verano\",\n  \"descripcion\": \"Temporada de mayor afluencia turística durante el verano\",\n  \"fechaInicio\": \"2025-12-01\",\n  \"fechaFin\": \"2026-03-31\",\n  \"multiplicadorPrecio\": 1.5,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/temporada",
+              "host": ["{{base_url}}"],
+              "path": ["temporada"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Todas las Temporadas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/temporada",
+              "host": ["{{base_url}}"],
+              "path": ["temporada"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Temporada Actual",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/temporada/actual",
+              "host": ["{{base_url}}"],
+              "path": ["temporada", "actual"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Temporadas Próximas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/temporada/proximas?dias=60",
+              "host": ["{{base_url}}"],
+              "path": ["temporada", "proximas"],
+              "query": [
+                {
+                  "key": "dias",
+                  "value": "60"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Calcular Precio con Temporada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precioBase\": 100.00,\n  \"fecha\": \"2025-12-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/temporada/calcular-precio",
+              "host": ["{{base_url}}"],
+              "path": ["temporada", "calcular-precio"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Temporada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"nombre\": \"Temporada Alta Verano - Actualizada\",\n  \"multiplicadorPrecio\": 1.6\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/temporada/1",
+              "host": ["{{base_url}}"],
+              "path": ["temporada", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Temporada",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/temporada/1",
+              "host": ["{{base_url}}"],
+              "path": ["temporada", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Valoración",
+      "item": [
+        {
+          "name": "Crear Valoración",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreUsuario\": \"Juan Pérez\",\n  \"emailUsuario\": \"juan.perez@email.com\",\n  \"calificacion\": 5,\n  \"comentario\": \"Experiencia increíble, lugar mágico y bien conservado\",\n  \"fechaVisita\": \"2025-07-10\",\n  \"lugarTuristicoId\": 1,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/valoracion",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Todas las Valoraciones",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Valoraciones por Lugar",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion/lugar/1",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "lugar", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Valoraciones por Calificación",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion/calificacion/5",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "calificacion", "5"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Valoraciones por Usuario",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion/usuario/Juan Pérez",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "usuario", "Juan Pérez"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Valoraciones Recientes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion/recientes?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "recientes"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Estadísticas de Lugar",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valoracion/estadisticas/1",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "estadisticas", "1"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Valoración",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"calificacion\": 4,\n  \"comentario\": \"Muy buena experiencia, recomendado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/valoracion/1",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Valoración",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/valoracion/1",
+              "host": ["{{base_url}}"],
+              "path": ["valoracion", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Búsqueda",
+      "item": [
+        {
+          "name": "Buscar Lugares Turísticos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"termino\": \"Machu Picchu\",\n  \"categoria\": \"arqueológico\",\n  \"latitud\": -13.163141,\n  \"longitud\": -72.544963,\n  \"radio\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/busqueda/buscar",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "buscar"]
+            }
+          }
+        },
+        {
+          "name": "Crear Registro de Búsqueda",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"terminoBusqueda\": \"Cusco\",\n  \"categoria\": \"ciudad\",\n  \"latitudBusqueda\": -13.531950,\n  \"longitudBusqueda\": -71.967463,\n  \"radioKm\": 50,\n  \"usuarioIp\": \"192.168.1.100\",\n  \"cantidadResultados\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/busqueda",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Todas las Búsquedas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por Término",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/termino/Machu",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "termino", "Machu"]
+            }
+          }
+        },
+        {
+          "name": "Buscar por Categoría",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/categoria/arqueológico",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "categoria", "arqueológico"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Búsquedas Recientes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/recientes?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "recientes"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Términos Más Populares",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/terminos-populares?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "terminos-populares"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Categorías Más Populares",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/categorias-populares?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "categorias-populares"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Estadísticas de Búsqueda",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/busqueda/estadisticas",
+              "host": ["{{base_url}}"],
+              "path": ["busqueda", "estadisticas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "General",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
