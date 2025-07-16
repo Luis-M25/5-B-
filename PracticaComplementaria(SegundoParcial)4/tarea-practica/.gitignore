@@ -14,7 +14,6 @@ lerna-debug.log*
 
 # OS
 .DS_Store
-Thumbs.db
 
 # Tests
 /coverage
@@ -55,20 +54,3 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# TypeScript
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm/
-
-# Optional eslint cache
-.eslintcache
-
-# Coverage
-coverage/
-
-# Others
-*.tgz
-.parcel-cache/
-.cache/
