@@ -1,0 +1,149 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CalcularCostoDetalladoInput {
+  aplicarDescuentos: Boolean
+  clienteId: String
+  incluirImpuestos: Boolean
+  litros: Float!
+  surtidorId: String
+  tipoGasolina: String!
+}
+
+type CalculoResultType {
+  descuentos: Float!
+  disponible: Boolean!
+  fechaCalculo: DateTime!
+  impuestos: Float!
+  litros: Float!
+  precioLitro: Float!
+  stockDisponible: Float!
+  subtotal: Float!
+  tipoGasolina: String!
+  total: Float!
+}
+
+type Cliente {
+  cedula: String!
+  direccion: String
+  email: String
+  fechaActualizacion: DateTime
+  fechaCreacion: DateTime
+  fechaRegistro: DateTime!
+  id: ID!
+  nombre: String!
+  telefono: String
+  tipoCliente: String!
+}
+
+type ComparacionPreciosType {
+  diferencia: Float!
+  porcentajeCambio: Float!
+  precioActual: Float!
+  precioAnterior: Float!
+  tendencia: String!
+  tipoGasolina: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  updatePrecio(tipoGasolina: String!, updatePrecioInput: UpdatePrecioInput!): Precio
+}
+
+type Operador {
+  cedula: String!
+  estado: String!
+  fechaActualizacion: DateTime
+  fechaCreacion: DateTime
+  fechaIngreso: DateTime!
+  id: ID!
+  nombre: String!
+  turno: String!
+}
+
+type Precio {
+  activo: Boolean!
+  fechaActualizacion: DateTime!
+  fechaCreacion: DateTime
+  id: ID!
+  precioLitro: Float!
+  tipoGasolina: String!
+}
+
+type Query {
+  calcularCosto(input: CalcularCostoDetalladoInput!): CalculoResultType!
+  calcularCostoBasico(litros: Float!, tipoGasolina: String!): CalculoResultType!
+  compararPrecios: [ComparacionPreciosType!]!
+  estimarTiempoDespacho(litros: Float!): Float!
+  precioPorTipo(tipoGasolina: String!): Precio
+  precios: [Precio!]!
+  preciosActivos: [Precio!]!
+  simularVenta(input: SimulacionVentaInput!): CalculoResultType!
+  stockDisponible(tipoGasolina: String!): Float!
+  tipoGasolina(id: ID!): TipoGasolinaType
+  tiposGasolina: [TipoGasolinaType!]!
+  tiposGasolinaDisponibles: [TipoGasolinaType!]!
+  validarCapacidadSurtidor(litros: Float!, surtidorId: String!): Boolean!
+  verificarDisponibilidadGasolina(cantidadRequerida: Float!, tipoGasolina: String!): Boolean!
+}
+
+input SimulacionVentaInput {
+  litros: Float!
+  operadorId: String
+  surtidorId: String
+  tipoGasolina: String!
+}
+
+type Surtidor {
+  capacidadMaxima: Float!
+  combustibleActual: Float!
+  estado: String!
+  fechaActualizacion: DateTime
+  fechaCreacion: DateTime
+  id: ID!
+  nombre: String!
+  numero: Int!
+  tiposGasolinaDisponibles: [String!]!
+  ubicacion: String!
+}
+
+type TipoGasolinaType {
+  disponible: Boolean!
+  fechaActualizacion: DateTime!
+  id: ID!
+  nombre: String!
+  octanaje: Int!
+  precioActual: Float!
+  stock: Float!
+  tipo: String!
+}
+
+input UpdatePrecioInput {
+  activo: Boolean
+  precioLitro: Float!
+}
+
+type Venta {
+  cliente: Cliente
+  clienteId: String
+  estado: String!
+  fechaActualizacion: DateTime
+  fechaCreacion: DateTime
+  fechaVenta: DateTime!
+  formaPago: String!
+  id: ID!
+  litros: Float!
+  montoTotal: Float!
+  numeroRecibo: String!
+  operador: Operador
+  operadorId: String!
+  precioLitro: Float!
+  surtidor: Surtidor
+  surtidorId: String!
+  tipoGasolina: String!
+}

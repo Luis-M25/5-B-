@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente WebSocket - Gasolinera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .surtidor {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 4px;
+            display: inline-block;
+            width: 200px;
+        }
+        .disponible { background-color: #d4edda; }
+        .ocupado { background-color: #fff3cd; }
+        .mantenimiento { background-color: #f8d7da; }
+        
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚗 Cliente WebSocket - Sistema de Gasolinera</h1>
+
+    <!-- Estado de Conexión -->
+    <div class="container">
+        <h2>Estado de Conexión</h2>
+        <div id="connectionStatus" class="status disconnected">Desconectado</div>
+        <button onclick="conectar()">Conectar</button>
+        <button onclick="desconectar()">Desconectar</button>
+    </div>
+
+    <!-- Autenticación -->
+    <div class="container">
+        <h2>Autenticación de Operador</h2>
+        <select id="operadorSelect">
+            <option value="">Seleccionar operador...</option>
+            <option value="1">Juan Pérez</option>
+            <option value="2">María García</option>
+            <option value="3">Carlos López</option>
+        </select>
+        <button onclick="autenticarOperador()">Autenticar</button>
+        <div id="operadorInfo" class="status info" style="display: none;"></div>
+    </div>
+
+    <div class="grid">
+        <!-- Surtidores -->
+        <div class="container">
+            <h2>Surtidores</h2>
+            <button onclick="obtenerSurtidores()">Actualizar Estado</button>
+            <div id="surtidores"></div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="container">
+            <h2>Estadísticas en Tiempo Real</h2>
+            <button onclick="obtenerEstadisticas()">Actualizar</button>
+            <div id="estadisticas" class="estadisticas"></div>
+        </div>
+    </div>
+
+    <!-- Crear Venta -->
+    <div class="container">
+        <h2>Crear Venta</h2>
+        <div>
+            <label>Surtidor:</label>
+            <select id="surtidorVenta">
+                <option value="">Seleccionar surtidor...</option>
+            </select>
+        </div>
+        <div>
+            <label>Tipo de Gasolina:</label>
+            <select id="tipoGasolina">
+                <option value="regular">Regular</option>
+                <option value="premium">Premium</option>
+                <option value="diesel">Diesel</option>
+            </select>
+        </div>
+        <div>
+            <label>Litros:</label>
+            <input type="number" id="litros" placeholder="Litros" step="0.01" min="0.1">
+        </div>
+        <div>
+            <label>Forma de Pago:</label>
+            <select id="formaPago">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+            </select>
+        </div>
+        <button onclick="calcularCosto()">Calcular Costo</button>
+        <button onclick="crearVenta()">Crear Venta</button>
+        <div id="costoCalculado" class="status info" style="display: none;"></div>
+    </div>
+
+    <!-- Log de Eventos -->
+    <div class="container">
+        <h2>Log de Eventos</h2>
+        <button onclick="limpiarLog()">Limpiar</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let operadorAutenticado = false;
+
+        function log(mensaje, tipo = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = tipo === 'error' ? 'error' : tipo === 'success' ? 'success' : 'info';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${mensaje}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function actualizarEstadoConexion(conectado) {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (conectado) {
+                statusDiv.textContent = 'Conectado al servidor WebSocket';
+                statusDiv.className = 'status connected';
+            } else {
+                statusDiv.textContent = 'Desconectado del servidor';
+                statusDiv.className = 'status disconnected';
+                operadorAutenticado = false;
+                document.getElementById('operadorInfo').style.display = 'none';
+            }
+        }
+
+        function conectar() {
+            if (socket) {
+                log('Ya existe una conexión activa');
+                return;
+            }
+
+            socket = io('http://localhost:3000');
+
+            socket.on('connect', () => {
+                log('Conectado al servidor WebSocket', 'success');
+                actualizarEstadoConexion(true);
+            });
+
+            socket.on('disconnect', () => {
+                log('Desconectado del servidor', 'error');
+                actualizarEstadoConexion(false);
+            });
+
+            socket.on('error', (data) => {
+                log(`Error: ${data.message}`, 'error');
+            });
+
+            socket.on('autenticacion-exitosa', (data) => {
+                log(`Autenticación exitosa: ${data.operador.nombre}`, 'success');
+                operadorAutenticado = true;
+                document.getElementById('operadorInfo').innerHTML = 
+                    `Operador: ${data.operador.nombre} (${data.operador.turno})`;
+                document.getElementById('operadorInfo').style.display = 'block';
+            });
+
+            socket.on('operador-conectado', (data) => {
+                log(`Operador conectado: ${data.nombre}`);
+            });
+
+            socket.on('surtidores-estado', (surtidores) => {
+                mostrarSurtidores(surtidores);
+            });
+
+            socket.on('surtidor-estado-cambiado', (data) => {
+                log(`Surtidor ${data.surtidorId} cambió a: ${data.nuevoEstado}`);
+                obtenerSurtidores();
+            });
+
+            socket.on('nueva-venta', (data) => {
+                log(`Nueva venta creada: $${data.montoTotal} en surtidor ${data.surtidorId}`, 'success');
+            });
+
+            socket.on('venta-creada', (data) => {
+                log(`Venta creada exitosamente: $${data.calculo.total}`, 'success');
+                document.getElementById('costoCalculado').style.display = 'none';
+            });
+
+            socket.on('venta-completada', (data) => {
+                log(`Venta completada: ${data.venta.id}`, 'success');
+            });
+
+            socket.on('costo-calculado', (calculo) => {
+                const costoDiv = document.getElementById('costoCalculado');
+                costoDiv.innerHTML = `
+                    <strong>Cálculo de Costo:</strong><br>
+                    Precio por litro: $${calculo.precioLitro}<br>
+                    Litros: ${calculo.litros}<br>
+                    <strong>Total: $${calculo.total}</strong>
+                `;
+                costoDiv.style.display = 'block';
+            });
+
+            socket.on('estadisticas-actualizadas', (stats) => {
+                mostrarEstadisticas(stats);
+            });
+
+            socket.on('estadisticas-iniciales', (stats) => {
+                log('Estadísticas iniciales recibidas');
+                mostrarEstadisticas(stats);
+            });
+
+            socket.on('precio-actualizado', (data) => {
+                log(`Precio actualizado: ${data.tipoGasolina} = $${data.nuevoPrecio}`);
+            });
+        }
+
+        function desconectar() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                actualizarEstadoConexion(false);
+                log('Desconectado manualmente');
+            }
+        }
+
+        function autenticarOperador() {
+            if (!socket) {
+                log('No hay conexión activa', 'error');
+                return;
+            }
+
+            const operadorId = document.getElementById('operadorSelect').value;
+            if (!operadorId) {
+                log('Seleccione un operador', 'error');
+                return;
+            }
+
+            socket.emit('autenticar-operador', { operadorId });
+        }
+
+        function obtenerSurtidores() {
+            if (!socket) return;
+            socket.emit('obtener-surtidores');
+        }
+
+        function obtenerEstadisticas() {
+            if (!socket) return;
+            socket.emit('obtener-estadisticas');
+        }
+
+        function calcularCosto() {
+            if (!socket) {
+                log('No hay conexión activa', 'error');
+                return;
+            }
+
+            const tipoGasolina = document.getElementById('tipoGasolina').value;
+            const litros = parseFloat(document.getElementById('litros').value);
+
+            if (!litros || litros <= 0) {
+                log('Ingrese una cantidad válida de litros', 'error');
+                return;
+            }
+
+            socket.emit('calcular-costo', { tipoGasolina, litros });
+        }
+
+        function crearVenta() {
+            if (!socket || !operadorAutenticado) {
+                log('Debe estar conectado y autenticado', 'error');
+                return;
+            }
+
+            const surtidorId = document.getElementById('surtidorVenta').value;
+            const tipoGasolina = document.getElementById('tipoGasolina').value;
+            const litros = parseFloat(document.getElementById('litros').value);
+            const formaPago = document.getElementById('formaPago').value;
+
+            if (!surtidorId || !litros || litros <= 0) {
+                log('Complete todos los campos requeridos', 'error');
+                return;
+            }
+
+            socket.emit('crear-venta', {
+                surtidorId,
+                tipoGasolina,
+                litros,
+                formaPago
+            });
+        }
+
+        function seleccionarSurtidor(surtidorId) {
+            if (!socket || !operadorAutenticado) {
+                log('Debe estar autenticado para seleccionar surtidores', 'error');
+                return;
+            }
+            socket.emit('seleccionar-surtidor', { surtidorId });
+        }
+
+        function liberarSurtidor(surtidorId) {
+            if (!socket || !operadorAutenticado) {
+                log('Debe estar autenticado para liberar surtidores', 'error');
+                return;
+            }
+            socket.emit('liberar-surtidor', { surtidorId });
+        }
+
+        function mostrarSurtidores(surtidores) {
+            const div = document.getElementById('surtidores');
+            const select = document.getElementById('surtidorVenta');
+            
+            div.innerHTML = '';
+            select.innerHTML = '<option value="">Seleccionar surtidor...</option>';
+
+            surtidores.forEach(surtidor => {
+                const surtidorDiv = document.createElement('div');
+                surtidorDiv.className = `surtidor ${surtidor.estado}`;
+                surtidorDiv.innerHTML = `
+                    <strong>Surtidor ${surtidor.numero}</strong><br>
+                    Estado: ${surtidor.estado}<br>
+                    Tipo: ${surtidor.tipoGasolina}<br>
+                    <button onclick="seleccionarSurtidor('${surtidor.id}')" 
+                            ${surtidor.estado !== 'disponible' ? 'disabled' : ''}>
+                        Seleccionar
+                    </button>
+                    <button onclick="liberarSurtidor('${surtidor.id}')"
+                            ${surtidor.estado !== 'ocupado' ? 'disabled' : ''}>
+                        Liberar
+                    </button>
+                `;
+                div.appendChild(surtidorDiv);
+
+                if (surtidor.estado === 'disponible') {
+                    const option = document.createElement('option');
+                    option.value = surtidor.id;
+                    option.textContent = `Surtidor ${surtidor.numero} (${surtidor.tipoGasolina})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function mostrarEstadisticas(stats) {
+            const div = document.getElementById('estadisticas');
+            div.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalVentas}</div>
+                    <div>Ventas Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${stats.ingresosTotales?.toFixed(2) || '0.00'}</div>
+                    <div>Ingresos Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.litrosTotales?.toFixed(1) || '0.0'}</div>
+                    <div>Litros Vendidos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.surtidoresActivos || 0}</div>
+                    <div>Surtidores Activos</div>
+                </div>
+            `;
+        }
+
+        function limpiarLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Auto-conectar al cargar la página
+        window.onload = function() {
+            log('Cliente WebSocket iniciado');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "gasolinera-system",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de gasolinera con REST, GraphQL y WebSocket",
+  "scripts": {
+    "install-all": "npm run install:rest && npm run install:graphql && npm run install:websocket",
+    "install:rest": "cd rest-api && npm install",
+    "install:graphql": "cd graphql-api && npm install",
+    "install:websocket": "cd websocket-api && npm install",
+    "start:rest": "cd rest-api && npm run start:dev",
+    "start:graphql": "cd graphql-api && npm run start:dev",
+    "start:websocket": "cd websocket-api && npm run start:dev",
+    "start:all": "concurrently \"npm run start:rest\" \"npm run start:graphql\" \"npm run start:websocket\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2"
+  }
+}
