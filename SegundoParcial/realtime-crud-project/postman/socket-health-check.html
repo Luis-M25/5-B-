@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Health Check - Tourism API</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message {
+            background-color: #e2e3e5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .logs {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .namespace {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Socket.IO Health Check - Tourism API</h1>
+    
+    <div class="container">
+        <h2>📊 Estado de Conexiones</h2>
+        <div id="mainStatus" class="status disconnected">🔴 Desconectado del servidor principal</div>
+        <div id="lugarStatus" class="status disconnected">🔴 Desconectado de /lugarturistico</div>
+        <div id="temporadaStatus" class="status disconnected">🔴 Desconectado de /temporada</div>
+        <div id="valoracionStatus" class="status disconnected">🔴 Desconectado de /valoracion</div>
+        <div id="busquedaStatus" class="status disconnected">🔴 Desconectado de /busqueda</div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Controles</h2>
+        <button onclick="connectAll()">Conectar a Todos los Namespaces</button>
+        <button onclick="disconnectAll()">Desconectar Todos</button>
+        <button onclick="testHealthCheck()">Probar Health Check</button>
+        <button onclick="clearLogs()">Limpiar Logs</button>
+    </div>
+
+    <div class="container namespace">
+        <h3>🏛️ Lugar Turístico</h3>
+        <button onclick="testLugarTuristico()">Obtener Lugares</button>
+        <button onclick="createLugarTuristico()">Crear Lugar</button>
+        <div id="lugarMessages" class="logs"></div>
+    </div>
+
+    <div class="container namespace">
+        <h3>📅 Temporada</h3>
+        <button onclick="testTemporada()">Obtener Temporadas</button>
+        <button onclick="createTemporada()">Crear Temporada</button>
+        <div id="temporadaMessages" class="logs"></div>
+    </div>
+
+    <div class="container namespace">
+        <h3>⭐ Valoración</h3>
+        <button onclick="testValoracion()">Obtener Valoraciones</button>
+        <button onclick="createValoracion()">Crear Valoración</button>
+        <div id="valoracionMessages" class="logs"></div>
+    </div>
+
+    <div class="container namespace">
+        <h3>🔍 Búsqueda</h3>
+        <button onclick="testBusqueda()">Obtener Búsquedas</button>
+        <button onclick="realizarBusqueda()">Realizar Búsqueda</button>
+        <div id="busquedaMessages" class="logs"></div>
+    </div>
+
+    <script>
+        // Conexiones a los diferentes namespaces
+        let mainSocket = null;
+        let lugarSocket = null;
+        let temporadaSocket = null;
+        let valoracionSocket = null;
+        let busquedaSocket = null;
+
+        // Función para conectar a todos los namespaces
+        function connectAll() {
+            const serverUrl = 'http://localhost:3000';
+            
+            // Conexión principal
+            mainSocket = io(serverUrl);
+            
+            // Conexiones por namespace
+            lugarSocket = io(serverUrl + '/lugarturistico');
+            temporadaSocket = io(serverUrl + '/temporada');
+            valoracionSocket = io(serverUrl + '/valoracion');
+            busquedaSocket = io(serverUrl + '/busqueda');
+
+            // Configurar eventos para conexión principal
+            setupMainSocketEvents();
+            
+            // Configurar eventos para cada namespace
+            setupLugarSocketEvents();
+            setupTemporadaSocketEvents();
+            setupValoracionSocketEvents();
+            setupBusquedaSocketEvents();
+        }
+
+        // Configurar eventos del socket principal
+        function setupMainSocketEvents() {
+            mainSocket.on('connect', () => {
+                updateStatus('mainStatus', '🟢 Conectado al servidor principal', true);
+                logMessage('main', 'Conectado al servidor principal');
+            });
+
+            mainSocket.on('disconnect', () => {
+                updateStatus('mainStatus', '🔴 Desconectado del servidor principal', false);
+                logMessage('main', 'Desconectado del servidor principal');
+            });
+
+            mainSocket.on('connect_error', (error) => {
+                updateStatus('mainStatus', '🔴 Error de conexión: ' + error.message, false);
+                logMessage('main', 'Error de conexión: ' + error.message);
+            });
+        }
+
+        // Configurar eventos del namespace lugar turístico
+        function setupLugarSocketEvents() {
+            lugarSocket.on('connect', () => {
+                updateStatus('lugarStatus', '🟢 Conectado a /lugarturistico', true);
+                logMessage('lugar', 'Conectado a namespace /lugarturistico');
+            });
+
+            lugarSocket.on('disconnect', () => {
+                updateStatus('lugarStatus', '🔴 Desconectado de /lugarturistico', false);
+            });
+
+            // Eventos específicos del lugar turístico
+            lugarSocket.on('lugarCreado', (data) => {
+                logMessage('lugar', '🆕 Lugar creado: ' + JSON.stringify(data, null, 2));
+            });
+
+            lugarSocket.on('lugarActualizado', (data) => {
+                logMessage('lugar', '📝 Lugar actualizado: ' + JSON.stringify(data, null, 2));
+            });
+
+            lugarSocket.on('lugarEliminado', (data) => {
+                logMessage('lugar', '🗑️ Lugar eliminado: ' + JSON.stringify(data, null, 2));
+            });
+
+            lugarSocket.on('lugaresList', (data) => {
+                logMessage('lugar', '📋 Lista de lugares: ' + JSON.stringify(data, null, 2));
+            });
+        }
+
+        // Configurar eventos del namespace temporada
+        function setupTemporadaSocketEvents() {
+            temporadaSocket.on('connect', () => {
+                updateStatus('temporadaStatus', '🟢 Conectado a /temporada', true);
+                logMessage('temporada', 'Conectado a namespace /temporada');
+            });
+
+            temporadaSocket.on('disconnect', () => {
+                updateStatus('temporadaStatus', '🔴 Desconectado de /temporada', false);
+            });
+
+            temporadaSocket.on('temporadaCreada', (data) => {
+                logMessage('temporada', '🆕 Temporada creada: ' + JSON.stringify(data, null, 2));
+            });
+
+            temporadaSocket.on('temporadaActualizada', (data) => {
+                logMessage('temporada', '📝 Temporada actualizada: ' + JSON.stringify(data, null, 2));
+            });
+
+            temporadaSocket.on('temporadasList', (data) => {
+                logMessage('temporada', '📋 Lista de temporadas: ' + JSON.stringify(data, null, 2));
+            });
+        }
+
+        // Configurar eventos del namespace valoración
+        function setupValoracionSocketEvents() {
+            valoracionSocket.on('connect', () => {
+                updateStatus('valoracionStatus', '🟢 Conectado a /valoracion', true);
+                logMessage('valoracion', 'Conectado a namespace /valoracion');
+            });
+
+            valoracionSocket.on('disconnect', () => {
+                updateStatus('valoracionStatus', '🔴 Desconectado de /valoracion', false);
+            });
+
+            valoracionSocket.on('valoracionCreada', (data) => {
+                logMessage('valoracion', '🆕 Valoración creada: ' + JSON.stringify(data, null, 2));
+            });
+
+            valoracionSocket.on('valoracionActualizada', (data) => {
+                logMessage('valoracion', '📝 Valoración actualizada: ' + JSON.stringify(data, null, 2));
+            });
+
+            valoracionSocket.on('valoracionesList', (data) => {
+                logMessage('valoracion', '📋 Lista de valoraciones: ' + JSON.stringify(data, null, 2));
+            });
+        }
+
+        // Configurar eventos del namespace búsqueda
+        function setupBusquedaSocketEvents() {
+            busquedaSocket.on('connect', () => {
+                updateStatus('busquedaStatus', '🟢 Conectado a /busqueda', true);
+                logMessage('busqueda', 'Conectado a namespace /busqueda');
+            });
+
+            busquedaSocket.on('disconnect', () => {
+                updateStatus('busquedaStatus', '🔴 Desconectado de /busqueda', false);
+            });
+
+            busquedaSocket.on('busquedaRealizada', (data) => {
+                logMessage('busqueda', '🔍 Búsqueda realizada: ' + JSON.stringify(data, null, 2));
+            });
+
+            busquedaSocket.on('busquedaCreada', (data) => {
+                logMessage('busqueda', '🆕 Búsqueda creada: ' + JSON.stringify(data, null, 2));
+            });
+
+            busquedaSocket.on('busquedasList', (data) => {
+                logMessage('busqueda', '📋 Lista de búsquedas: ' + JSON.stringify(data, null, 2));
+            });
+        }
+
+        // Función para desconectar todos los sockets
+        function disconnectAll() {
+            [mainSocket, lugarSocket, temporadaSocket, valoracionSocket, busquedaSocket].forEach(socket => {
+                if (socket) socket.disconnect();
+            });
+        }
+
+        // Función para actualizar el estado visual
+        function updateStatus(elementId, message, isConnected) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // Función para agregar mensajes al log
+        function logMessage(namespace, message) {
+            const logElement = document.getElementById(namespace + 'Messages');
+            if (logElement) {
+                const timestamp = new Date().toLocaleTimeString();
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+                logElement.appendChild(messageDiv);
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        // Función para limpiar todos los logs
+        function clearLogs() {
+            ['lugar', 'temporada', 'valoracion', 'busqueda'].forEach(namespace => {
+                const logElement = document.getElementById(namespace + 'Messages');
+                if (logElement) {
+                    logElement.innerHTML = '';
+                }
+            });
+        }
+
+        // Función para probar health check
+        function testHealthCheck() {
+            if (mainSocket && mainSocket.connected) {
+                logMessage('main', '🔍 Probando health check...');
+                fetch('http://localhost:3000/')
+                    .then(response => response.text())
+                    .then(data => {
+                        logMessage('main', '✅ Health check exitoso: ' + data);
+                    })
+                    .catch(error => {
+                        logMessage('main', '❌ Error en health check: ' + error.message);
+                    });
+            } else {
+                logMessage('main', '❌ No hay conexión al servidor principal');
+            }
+        }
+
+        // Funciones de prueba para cada módulo
+        function testLugarTuristico() {
+            if (lugarSocket && lugarSocket.connected) {
+                lugarSocket.emit('findAllLugarTuristico');
+                logMessage('lugar', '📤 Solicitando lista de lugares turísticos');
+            } else {
+                logMessage('lugar', '❌ No hay conexión al namespace /lugarturistico');
+            }
+        }
+
+        function createLugarTuristico() {
+            if (lugarSocket && lugarSocket.connected) {
+                const lugarData = {
+                    nombre: "Machu Picchu",
+                    descripcion: "Ciudadela inca ubicada en los Andes peruanos",
+                    ubicacion: "Cusco, Perú",
+                    latitud: -13.163141,
+                    longitud: -72.544963,
+                    categoria: "arqueológico",
+                    precioPromedio: 152.00,
+                    activo: true
+                };
+                lugarSocket.emit('createLugarTuristico', lugarData);
+                logMessage('lugar', '📤 Creando lugar turístico: ' + JSON.stringify(lugarData, null, 2));
+            } else {
+                logMessage('lugar', '❌ No hay conexión al namespace /lugarturistico');
+            }
+        }
+
+        function testTemporada() {
+            if (temporadaSocket && temporadaSocket.connected) {
+                temporadaSocket.emit('findAllTemporada');
+                logMessage('temporada', '📤 Solicitando lista de temporadas');
+            } else {
+                logMessage('temporada', '❌ No hay conexión al namespace /temporada');
+            }
+        }
+
+        function createTemporada() {
+            if (temporadaSocket && temporadaSocket.connected) {
+                const temporadaData = {
+                    nombre: "Temporada Alta Verano",
+                    descripcion: "Temporada de mayor afluencia turística",
+                    fechaInicio: "2025-12-01",
+                    fechaFin: "2026-03-31",
+                    multiplicadorPrecio: 1.5,
+                    activo: true
+                };
+                temporadaSocket.emit('createTemporada', temporadaData);
+                logMessage('temporada', '📤 Creando temporada: ' + JSON.stringify(temporadaData, null, 2));
+            } else {
+                logMessage('temporada', '❌ No hay conexión al namespace /temporada');
+            }
+        }
+
+        function testValoracion() {
+            if (valoracionSocket && valoracionSocket.connected) {
+                valoracionSocket.emit('findAllValoracion');
+                logMessage('valoracion', '📤 Solicitando lista de valoraciones');
+            } else {
+                logMessage('valoracion', '❌ No hay conexión al namespace /valoracion');
+            }
+        }
+
+        function createValoracion() {
+            if (valoracionSocket && valoracionSocket.connected) {
+                const valoracionData = {
+                    nombreUsuario: "Juan Pérez",
+                    emailUsuario: "juan.perez@email.com",
+                    calificacion: 5,
+                    comentario: "Experiencia increíble, lugar mágico",
+                    fechaVisita: "2025-07-15",
+                    lugarTuristicoId: 1,
+                    activo: true
+                };
+                valoracionSocket.emit('createValoracion', valoracionData);
+                logMessage('valoracion', '📤 Creando valoración: ' + JSON.stringify(valoracionData, null, 2));
+            } else {
+                logMessage('valoracion', '❌ No hay conexión al namespace /valoracion');
+            }
+        }
+
+        function testBusqueda() {
+            if (busquedaSocket && busquedaSocket.connected) {
+                busquedaSocket.emit('findAllBusqueda');
+                logMessage('busqueda', '📤 Solicitando lista de búsquedas');
+            } else {
+                logMessage('busqueda', '❌ No hay conexión al namespace /busqueda');
+            }
+        }
+
+        function realizarBusqueda() {
+            if (busquedaSocket && busquedaSocket.connected) {
+                const busquedaData = {
+                    termino: "Machu Picchu",
+                    categoria: "arqueológico",
+                    latitud: -13.163141,
+                    longitud: -72.544963,
+                    radio: 50
+                };
+                busquedaSocket.emit('buscarLugares', busquedaData);
+                logMessage('busqueda', '📤 Realizando búsqueda: ' + JSON.stringify(busquedaData, null, 2));
+            } else {
+                logMessage('busqueda', '❌ No hay conexión al namespace /busqueda');
+            }
+        }
+
+        // Conectar automáticamente al cargar la página
+        window.onload = function() {
+            connectAll();
+        };
+
+        // Desconectar al cerrar la página
+        window.onbeforeunload = function() {
+            disconnectAll();
+        };
+    </script>
+</body>
+</html>

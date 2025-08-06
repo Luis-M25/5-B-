@@ -1,15 +1,20 @@
-# Sistema de Gestión de Gasolinera
+# Repositorio 5-B - Luis Méndoza
 
-Este proyecto implementa un sistema completo de gestión de gasolinera con tres tipos de APIs diferentes:
+Este repositorio contiene proyectos y prácticas de la materia de Arquitectura de Software Web.
 
-- **REST API** (Puerto 3001)
-- **GraphQL API** (Puerto 3002)  
-- **WebSocket API** (Puerto 3000)
+## 📁 Estructura del Repositorio
 
-## 🏗️ Arquitectura del Sistema
+### **SegundoParcial - Sistema de Gestión de Gasolinera**
 
-### Entidades Principales
+**ExamenSegundoParcial/** - Sistema completo de gestión de gasolinera con tres tipos de APIs:
 
+- **REST API** (Puerto 3001) - Pantalla 1: Selección de operadores y surtidores
+- **GraphQL API** (Puerto 3002) - Pantalla 2: Tipos de gasolina y cálculos de costo  
+- **WebSocket API** (Puerto 3003) - Pantalla 3: Formas de pago y datos de clientes
+
+#### 🏗️ Arquitectura del Sistema
+
+**Entidades Principales:**
 1. **Operador**: Trabajadores que gestionan las ventas
 2. **Surtidor**: Bombas de gasolina con diferentes estados
 3. **TipoGasolina**: Tipos de combustible disponibles
@@ -18,8 +23,7 @@ Este proyecto implementa un sistema completo de gestión de gasolinera con tres 
 6. **Cliente**: Clientes registrados (opcional)
 7. **Venta**: Transacciones de venta de combustible
 
-### Estructura de Archivos Compartidos
-
+**Estructura de Archivos Compartidos:**
 ```
 /shared/
 ├── interfaces.ts          # Definiciones de tipos TypeScript
@@ -27,21 +31,45 @@ Este proyecto implementa un sistema completo de gestión de gasolinera con tres 
 └── data-persistence.service.ts  # Servicio de persistencia JSON
 ```
 
-## 🚀 Instalación y Configuración
+#### 🚀 Instalación y Configuración del ExamenSegundoParcial
 
-### Prerequisitos
+**Prerequisitos:**
 - Node.js 18+
 - npm o yarn
 
-### Instalación
+**Instalación:**
 
 1. **REST API**
 ```bash
 cd rest-api
+
+**Descripción**: Sistema CRUD en tiempo real para manejo de lugares turísticos con WebSocket y Socket.IO
+
+**Tecnologías**:
+- NestJS (Framework Node.js)
+- Socket.IO (WebSocket en tiempo real)
+- TypeScript
+- SQLite (Base de datos)
+- Postman (Documentación y pruebas)
+
+**Características**:
+- ✅ CRUD completo para lugares turísticos
+- ✅ Sistema de temporadas
+- ✅ Valoraciones y comentarios
+- ✅ Búsqueda con geolocalización
+- ✅ Comunicación en tiempo real con WebSocket
+- ✅ Documentación completa con Postman
+- ✅ Guía específica para pruebas WebSocket
+
+**Cómo usar**:
+```bash
+cd realtime-crud-project
+>>>>>>> 666ac5e0f14503b4be95f0b80126aa259c327dca
 npm install
 npm run start:dev
 ```
 
+<<<<<<< HEAD
 2. **GraphQL API**
 ```bash
 cd graphql-api
@@ -355,3 +383,142 @@ Para dudas o problemas:
 2. Verifica que todos los servicios estén ejecutándose
 3. Consulta la documentación de APIs
 4. Usa el cliente de prueba WebSocket para debugging
+=======
+## Prácticas y Ejercicios
+
+### 📁 Prácticas Complementarias
+- **PracticaComplementaria1**: Fundamentos de desarrollo web
+- **PracticaComplementaria2**: Aplicación de conceptos avanzados
+- **PracticaComplementaria3**: Integración y despliegue
+- **PracticaComplementaria(SegundoParcial)4**: Prácticas del segundo parcial
+
+### 📁 Semanas de Aprendizaje
+- **Semana1**: Introducción a arquitectura web
+- **Semana2**: Conceptos fundamentales
+- **Semana4**: Desarrollo de aplicaciones
+- **Semana5**: Optimización y buenas prácticas
+
+npm install
+npm run start:dev
+```
+
+2. **GraphQL API**
+```bash
+cd graphql-api
+npm install
+npm run start:dev
+```
+
+3. **WebSocket API**
+```bash
+cd websocket-api
+npm install
+npm run start:dev
+```
+
+#### � Scripts de Inicio Rápido
+
+**Iniciar todas las APIs:**
+```bash
+chmod +x start-backend.sh
+./start-backend.sh
+```
+
+**Detener todas las APIs:**
+```bash
+chmod +x stop-backend.sh
+./stop-backend.sh
+```
+
+### **PrimerParcial**
+
+### 📂 [ExamenPrimerParcial](./PrimerParcial/ExamenPrimerParcial)
+Sistema de gestión académica con arquitectura DDD (Domain-Driven Design)
+
+### 📂 [PracticaComplementaria1](./PrimerParcial/PracticaComplementaria1)
+Sistema de recomendaciones turísticas con TypeScript
+
+### 📂 [PracticaComplementaria2](./PrimerParcial/PracticaComplementaria2)
+API REST para gestión de destinos turísticos
+
+### 📂 [PracticaComplementaria3](./PrimerParcial/PracticaComplementaria3)
+Sistema avanzado con TypeORM y MongoDB
+
+### 📂 [realtime-crud-project](./SegundoParcial/realtime-crud-project)
+Sistema CRUD en tiempo real con WebSockets
+
+### 📂 [graphql-auth](./SegundoParcial/graphql-auth)
+API GraphQL con autenticación JWT
+
+### 📂 [PracticaComplementaria(SegundoParcial)4](./SegundoParcial/PracticaComplementaria(SegundoParcial)4)
+Práctica complementaria del segundo parcial
+
+### 📁 Prácticas por Semana
+- **Semana1**: Introducción a Python y TypeScript
+- **Semana2**: Fundamentos de TypeScript
+- **Semana4**: Base de datos con SQLite
+- **Semana5**: Proyectos avanzados
+
+## Estructura del Repositorio
+
+```
+📁 5-B/
+├── 📄 README.md (este archivo)
+├── 📄 .gitignore
+├── 📁 ExamenSegundoParcial/ (🆕 NUEVO - Sistema Gasolinera)
+│   ├── 📄 README.md
+│   ├── � rest-api/ (Puerto 3001)
+│   ├── 📁 graphql-api/ (Puerto 3002)
+│   ├── 📁 websocket-api/ (Puerto 3003)
+│   ├── 📁 shared/ (Interfaces comunes)
+│   └── � start-backend.sh
+├── 📁 PrimerParcial/
+│   ├── 📁 ExamenPrimerParcial/
+│   ├── 📁 PracticaComplementaria1/
+│   ├── 📁 PracticaComplementaria2/
+│   ├── 📁 PracticaComplementaria3/
+│   ├── 📁 Semana1/
+│   ├── 📁 Semana2/
+│   ├── 📁 Semana4/
+│   └── 📁 Semana5/
+└── 📁 SegundoParcial/
+    ├── 📁 realtime-crud-project/
+    ├── 📁 graphql-auth/
+    └── 📁 PracticaComplementaria(SegundoParcial)4/
+```
+
+## Documentación Específica
+
+### Para el ExamenSegundoParcial:
+- [Documentación completa](./ExamenSegundoParcial/README.md)
+- [Documentación técnica](./ExamenSegundoParcial/BACKEND_DOCUMENTATION.md)
+- [Proyecto completado](./ExamenSegundoParcial/PROYECTO-COMPLETADO.md)
+
+### Para otros proyectos:
+- [README del realtime-crud-project](./SegundoParcial/realtime-crud-project/README.md)
+- [Guía de pruebas Postman](./SegundoParcial/realtime-crud-project/postman/README.md)
+- [Guía de pruebas WebSocket](./SegundoParcial/realtime-crud-project/postman/WebSocket-Tests-Guide.md)
+
+### Para las Prácticas:
+- Cada carpeta contiene su propia documentación
+- Revisa los archivos README.md en cada directorio
+- Ejercicios organizados por semana y tipo
+
+## Información del Estudiante
+
+- **Nombre**: Luis Méndoza
+- **Materia**: Arquitectura de Software Web
+- **Grupo**: 5-B
+- **Fecha**: Agosto 2025
+
+## Notas Importantes
+
+- **🆕 ExamenSegundoParcial**: Sistema completo de gasolinera con 3 APIs diferentes
+- **Proyecto Principal**: `realtime-crud-project/` contiene el sistema completo
+- **Prácticas**: Organizadas por semana y tipo de ejercicio
+- **Documentación**: Cada proyecto tiene su propia documentación
+- **Versionado**: Cada práctica mantiene su historial independiente
+
+---
+
+**¡Explora los proyectos y prácticas! 🚀**
